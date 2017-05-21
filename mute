@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+[[ $# < 2 ]] && echo "${0##*/} <application> <on/off>" && exit
+
+case $2 in
+    "on")
+	mute=1
+	;;
+    "off")
+	mute=0
+	;;
+esac
+
+for idx in $(pacmd list-sink-inputs  | awk -vidx=-1 -vapp="$1" '/index/{ idx=$2 } $0 ~ app/1 { if (idx != -1) { print idx; idx=-1}}')
+do
+    pacmd set-sink-input-mute $idx $mute
+    [[ $? == 0 ]] && echo "$idx: $mute"
+done
